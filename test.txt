@@ -1,0 +1,5 @@
+#Format for code:
+#<seen_symbol> <machine_state> <write_symbol> <next_move> <next_state>
+1 START 1 R START
+0 START 0 R START
+_ START 0 R HALT

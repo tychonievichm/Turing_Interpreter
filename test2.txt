@@ -1,0 +1,35 @@
+#This is a program to remove all blanks in an input string.
+#Input is expected to end with e to avoid having to search
+#for the end of the input string.
+#Check to see if input is already good  otherwise mark
+#START point with s.
+#Program by M. Tychonievich
+#Example input: ____101_110__e
+_ START _ L sMark 
+0 START 0 L HALT
+1 START 1 L HALT
+#Look for first non-blank entry
+_ sMark s R rSearch 
+_ rSearch _ R rSearch 
+0 rSearch _ L lZero 
+1 rSearch _ L lOne 
+#Return to START  write first non-zero
+#entry then look for the next non-blank entry
+_ lZero _ L lZero 
+0 lZero 0 R lZeroWrite 
+1 lZero 1 R lZeroWrite 
+s lZero s R lZeroWrite 
+_ lZeroWrite 0 R rSearch 
+_ lOne _ L lOne 
+0 lOne 0 R lOneWrite 
+1 lOne 1 R lOneWrite 
+s lOne s R lOneWrite 
+_ lOneWrite 1 R rSearch 
+#When e is found at the end of the string  
+#erase it  return to START  erase s  then return
+#to STARTing point
+e rSearch _ L finish 
+_ finish _ L finish 
+0 finish 0 L finish 
+1 finish 1 L finish 
+s finish _ R HALT 
