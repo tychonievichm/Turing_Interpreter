@@ -3,7 +3,7 @@
 #for the end of the input string.
 #Check to see if input is already good  otherwise mark
 #START point with s.
-#Program by M. Tychonievich
+#Program by Michael Tychonievich
 #Example input: ____101_110__e
 _ START _ L sMark 
 0 START 0 L HALT

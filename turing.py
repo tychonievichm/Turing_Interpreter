@@ -1,23 +1,22 @@
+# -*- coding: utf-8 -*-
 import sys
 import time
 
 
-def run():  # main program
-    # sys.argv.pop(0)
-    code_file = 'test2.txt'  # sys.argv.pop(0)
+def Run():  # main program
+
+    code_file = 'test2.txt'
     input_string = '__0__1_1___1_0_1__e'
     input_string = list(input_string)
-    # ['1']+['0']*4 + ['1']+['0']*3 + ['1']+['0']*4#sys.argv
     tape = ['_']*5 + input_string + ['_']*5
-    # split tape into list
     head_position = 5
     machine_state = 'START'
-    codeDict = read_code_to_dict(code_file)
-    turing = machine(codeDict, tape, head_position, machine_state)
-    turing.engage()
+    code_dict = ReadCodeToDict(code_file)
+    turing = Machine(code_dict, tape, head_position, machine_state)
+    turing.Engage()
 
 
-class code_line(object):
+class CodeLine(object):
     def __init__(self, s):
         code_list = s.split(" ")
         self.key = " ".join(code_list[0:2])
@@ -26,20 +25,20 @@ class code_line(object):
         self.state = code_list[4]
 
 
-class machine(object):
+class Machine(object):
     def __init__(self, codeDict, tape, head_position, machine_state):
         self.code = codeDict
         self.tape = tape
         self.position = head_position
         self.state = machine_state
 
-    def read(self):  # Gives the value that the head currently sees
+    def Read(self):  # Gives the value that the head currently sees
         return self.tape[self.position]
 
-    def write(self, new_symbol):  # Head write in a new symbol to the current cell
+    def Write(self, new_symbol):  # Head write in a new symbol to the current cell
         self.tape[self.position] = new_symbol
 
-    def move(self, direction):  # Head moves either left or right
+    def Move(self, direction):  # Head moves either left or right
         if direction == 'R':
             self.position += 1
         elif direction == 'L':
@@ -47,28 +46,28 @@ class machine(object):
         else:
             print 'Invalid movement code.'
 
-    def change_state(self, new_state):
+    def ChangeState(self, new_state):
         self.state = new_state
 
-    def make_code_key(self):
-        return " ".join([self.read(), self.state])
+    def MakeCodeKey(self):
+        return " ".join([self.Read(), self.state])
 
-    def execute(self):
-        code_key = self.make_code_key()
+    def ExecuteNextInstruction(self):
+        code_key = self.MakeCodeKey()
         if code_key in self.code:
             action = self.code[code_key]
-            self.write(action.symbol)
-            self.move(action.direction)
-            self.change_state(action.state)
+            self.Write(action.symbol)
+            self.Move(action.direction)
+            self.ChangeState(action.state)
         else:
             print "Inescapable non-halting state attained."
 
-    def engage(self):
+    def Engage(self):
         print " ".join(self.tape)
         print " "
         while self.state != 'HALT':
-            time.sleep(.1)
-            self.execute()
+            time.sleep(.05)
+            self.ExecuteNextInstruction()
             tape_show = " ".join(self.tape)
             head_show = [" "] * len(tape_show)
             head_show[self.position] = "^"
@@ -78,14 +77,14 @@ class machine(object):
             print " "
 
 
-def read_code_to_dict(file_name):
+def ReadCodeToDict(file_name):
     f = open(file_name, "r")
     turing_code = f.read()
     f.close()
     turing_code = turing_code.split("\n")
-    codeDict = {code_line(s).key:
-                code_line(s) for s in turing_code if s[0] != '#'}
-    return codeDict
+    code_dict = {CodeLine(s).key: CodeLine(s)
+                for s in turing_code if s[0] != '#'}
+    return code_dict
 
 
-run()
+Run()
