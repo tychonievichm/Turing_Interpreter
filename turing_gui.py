@@ -1,56 +1,74 @@
+#!/usr/bin/env python.
 # -*- coding: utf-8 -*-
 
+##############################################################################
+#                                                                            #
+#    Interface code for interacting with the Turing Machine simulator.       #
+#                                                                            #
+##############################################################################
+
 from Tkinter import *
-# import turing
+import turing
 
 class TuringGUI(object):
     def __init__(self, parent):
-        self.my_parent = parent   
+        self.parent = parent   
         self.container = Frame(parent)
         self.container.pack(side = TOP)
-        self.buffer_frame_1 = BufferFrame(self.container)
-        self.status_frame = StatusFrame(self.container)
-        self.display_frame = DisplayFrame(self.container)
+        self.buffer_frame_1 = BufferFrame(self.container, 40, 1, TOP)
+        self.state_display_frame_frame = StateFrame(self.container)
+        self.tape_display_frame = TapeFrame(self.container)
         self.pointer_frame = PointerFrame(self.container)
-        self.buffer_frame_2 = BufferFrame(self.container)
+        self.buffer_frame_2 = BufferFrame(self.container, 25, 1, TOP)
         self.interface_frame = InterfaceFrame(self.container)
-        self.buffer_frame_4 = BufferFrame(self.container)
-        self.file_frame = FileFrame(self.container)
-        self.buffer_frame_4 = BufferFrame(self.container)
+        self.buffer_frame_3 = BufferFrame(self.container, 40, 1, TOP)
 
-class StatusFrame(object):
-    def __init__(self, parent):
-        self.container = Frame(parent)
-        self.container.pack(side = TOP)
-        self.my_parent = parent
-        state_display_text = Text(self.container, height=1, width=10)
-        state_display_text.pack(side = LEFT)
-        state_display_text.insert(END, "Machine state goes here.")
 
 class BufferFrame(object):
-    def __init__(self, parent):
-        self.container = Frame(parent, height=50)
-        self.container.pack(side = TOP)
-        self.my_parent = parent
-        
-class DisplayFrame(object):
+    def __init__(self, parent, ht, wd, sd):
+        self.parent = parent
+        self.container = Frame(parent, height=ht, width=wd)
+        self.container.pack(side = sd, expand=False)
+
+
+class StateFrame(object):
     def __init__(self, parent):
         self.container = Frame(parent)
         self.container.pack(side = TOP)
-        self.my_parent = parent
-        tape_display_text = Text(self.container, height=1, width=100)
-        tape_display_text.pack(side = LEFT)
-        tape_display_text.insert(END, "Machine tape goes here.")
+        state_display_text = Text(self.container, height=1, width=10)
+        state_display_text.pack(side = TOP)
+        state_display_text.insert(END, "Machine state goes here.")
+
+
+class TapeFrame(object):
+    def __init__(self, parent):
+        self.parent = parent
+        self.container = Frame(parent)
+        self.container.pack(side = TOP)
+        self.tape_display_text = Text(self.container, height=1, width=100)
+        self.tape_display_text.pack(side = TOP)
+        self.tape_display_text.insert(END, "Machine tape goes here.")
+
 
 class PointerFrame(object):
     def __init__(self, parent):
+        self.parent = parent
         self.container = Frame(parent)
         self.container.pack(side = TOP)
-        self.my_parent = parent
         self.pointer_text = Text(self.container, height=1, width=1)
-        self.pointer_text.pack(side = LEFT)
+        self.pointer_text.pack(side = TOP)
         self.pointer_text.insert(END, "^")
 
+
+class InterfaceFrame(object):
+    def __init__(self, parent):
+        self.parent = parent
+        self.container = Frame(parent)
+        self.container.pack(side = LEFT)
+        self.file_frame = FileFrame(self.container)
+        self.buffer_frame = BufferFrame(self.container, 1,240, LEFT)
+        self.control_frame = ControlFrame(self.container)
+        
 
 class FileFrame(object):
     def __init__(self, parent):
@@ -59,6 +77,7 @@ class FileFrame(object):
         self.container.pack(side = LEFT)
         self.label_frame = self.LabelFrame(self.container)
         self.textbox_frame = self.TextboxFrame(self.container)
+        self.buffer_frame = BufferFrame(self.container, 1,10, LEFT)
         self.button_frame = self.ButtonFrame(self.container)
         
     class LabelFrame(object):
@@ -76,7 +95,7 @@ class FileFrame(object):
         def __init__(self, parent):
             self.container = Frame(parent)
             self.container.pack(side=LEFT)
-            self.my_parent = parent
+            self.parent = parent
         
             self.input_label = Text(self.container, height = 1, width = 30)
             self.input_label.insert(END, "Input")
@@ -89,19 +108,20 @@ class FileFrame(object):
         def __init__(self, parent):
             self.container = Frame(parent)
             self.container.pack(side=LEFT)
-            self.my_parent = parent
+            self.parent = parent
             self.load_button = Button(self.container, command = self.LoadCode)   
-            self.load_button.configure(text="Load", background = "blue")
+            self.load_button.configure(text="Load")
             self.load_button.pack(side = LEFT)
             
         def LoadCode(self):
-            print "Load the Machine."
+            root.machine = turing.new_machine('test2.txt','____0____1___e')
+            print "Machine loaded."
             
-class InterfaceFrame(object):
+class ControlFrame(object):
     def __init__(self, parent):
         self.container = Frame(parent)
-        self.container.pack(side=TOP)
-        self.my_parent = parent
+        self.container.pack(side=LEFT)
+        self.parent = parent
         
         self.execute_button = Button(self.container, command = self.RunCode)   
         self.execute_button.configure(text="Execute", background = "green")
@@ -123,12 +143,9 @@ class InterfaceFrame(object):
         print "Shutting down the Machine."
         # root.destroy()
 
-        
+
 
 root = Tk()
-root.title("Turing Machine Similator")
+app = TuringGUI(root)
 # root.iconbitmap('alan_turing.ico')
-myapp = TuringGUI(root)
-
 root.mainloop()
-
