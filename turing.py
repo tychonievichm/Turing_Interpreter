@@ -84,7 +84,7 @@ class Machine(object):
         else:
             raise DirectionError(direction)
 
-    def change_state(self, new_state):
+    def _change_state(self, new_state):
         """Causes the state of the Machine to change to new_state."""
         self.state = new_state
 

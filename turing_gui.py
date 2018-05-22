@@ -7,7 +7,10 @@
 #                                                                            #
 ##############################################################################
 
+import time
+
 from Tkinter import *
+
 import turing
 
 class TuringGUI(object):
@@ -16,14 +19,20 @@ class TuringGUI(object):
         self.container = Frame(parent)
         self.container.pack(side = TOP)
         self.buffer_frame_1 = BufferFrame(self.container, 40, 1, TOP)
-        self.state_display_frame_frame = StateFrame(self.container)
+        self.state_display_frame = StateFrame(self.container)
         self.tape_display_frame = TapeFrame(self.container)
         self.pointer_frame = PointerFrame(self.container)
         self.buffer_frame_2 = BufferFrame(self.container, 25, 1, TOP)
         self.interface_frame = InterfaceFrame(self.container)
         self.buffer_frame_3 = BufferFrame(self.container, 40, 1, TOP)
 
-
+    def update_display(self):
+        pos = self.machine.position
+        tape_label_text = " ".join(self.machine.tape[pos-17:pos+16])
+        self.tape_display_frame.tape_display.config(text=tape_label_text)
+        self.state_display_frame.state_display.config(text=self.machine.state)     
+        
+        
 class BufferFrame(object):
     def __init__(self, parent, ht, wd, sd):
         self.parent = parent
@@ -33,11 +42,12 @@ class BufferFrame(object):
 
 class StateFrame(object):
     def __init__(self, parent):
+        self.parent = parent
         self.container = Frame(parent)
-        self.container.pack(side = TOP)
-        state_display_text = Text(self.container, height=1, width=10)
-        state_display_text.pack(side = TOP)
-        state_display_text.insert(END, "Machine state goes here.")
+        self.container.pack(side = TOP)       
+        self.state_display = Label(self.container, text = "State.",
+                                  font=("Courier", 12))  
+        self.state_display.pack(side = TOP)   
 
 
 class TapeFrame(object):
@@ -45,9 +55,9 @@ class TapeFrame(object):
         self.parent = parent
         self.container = Frame(parent)
         self.container.pack(side = TOP)
-        self.tape_display_text = Text(self.container, height=1, width=100)
-        self.tape_display_text.pack(side = TOP)
-        self.tape_display_text.insert(END, "Machine tape goes here.")
+        self.tape_display = Label(self.container, text = "Machine tape.",
+                                  font=("Courier", 12))   
+        self.tape_display.pack(side = TOP)
 
 
 class PointerFrame(object):
@@ -55,9 +65,9 @@ class PointerFrame(object):
         self.parent = parent
         self.container = Frame(parent)
         self.container.pack(side = TOP)
-        self.pointer_text = Text(self.container, height=1, width=1)
-        self.pointer_text.pack(side = TOP)
-        self.pointer_text.insert(END, "^")
+        self.tape_display = Label(self.container, text = "^",
+                                  font=("Courier", 12))   
+        self.tape_display.pack(side = TOP)
 
 
 class InterfaceFrame(object):
@@ -66,7 +76,7 @@ class InterfaceFrame(object):
         self.container = Frame(parent)
         self.container.pack(side = LEFT)
         self.file_frame = FileFrame(self.container)
-        self.buffer_frame = BufferFrame(self.container, 1,240, LEFT)
+        self.buffer_frame = BufferFrame(self.container, 1,230, LEFT)
         self.control_frame = ControlFrame(self.container)
         
 
@@ -96,56 +106,71 @@ class FileFrame(object):
             self.container = Frame(parent)
             self.container.pack(side=LEFT)
             self.parent = parent
-        
-            self.input_label = Text(self.container, height = 1, width = 30)
-            self.input_label.insert(END, "Input")
-            self.input_label.pack(side = TOP)
-            self.file_label = Text(self.container, height = 1, width = 30)   
-            self.file_label.insert(END, "File name")
-            self.file_label.pack(side = TOP)
+
+            self.input_text = Text(self.container, height = 1, width = 30)
+            self.input_text.insert(END, "test2.txt")
+            self.input_text.pack(side = TOP)
+            self.file_text = Text(self.container, height = 1, width = 30)   
+            self.file_text.insert(END, "____0____1___e")
+            self.file_text.pack(side = TOP)
         
     class ButtonFrame(object):
         def __init__(self, parent):
             self.container = Frame(parent)
             self.container.pack(side=LEFT)
             self.parent = parent
-            self.load_button = Button(self.container, command = self.LoadCode)   
+            self.load_button = Button(self.container, command = self.load_code)   
             self.load_button.configure(text="Load")
             self.load_button.pack(side = LEFT)
             
-        def LoadCode(self):
-            root.machine = turing.new_machine('test2.txt','____0____1___e')
-            print "Machine loaded."
-            
+        def load_code(self):
+            file_name = (app.interface_frame.file_frame.textbox_frame
+                         .input_text.get("1.0",'end-1c'))
+            input_string = (app.interface_frame.file_frame.textbox_frame
+                            .file_text.get("1.0",'end-1c'))
+            app.machine = turing.new_machine(file_name, input_string)
+
 class ControlFrame(object):
     def __init__(self, parent):
         self.container = Frame(parent)
         self.container.pack(side=LEFT)
         self.parent = parent
         
-        self.execute_button = Button(self.container, command = self.RunCode)   
+        self.execute_button = Button(self.container, command = self.run_code)   
         self.execute_button.configure(text="Execute", background = "green")
         self.execute_button.pack(side = LEFT)
         
-        self.step_button = Button(self.container, command = self.StepCode, background = "yellow")   
+        self.step_button = Button(self.container, command = self.step_code, background = "yellow")   
         self.step_button.configure(text = "Step", background = "yellow")
         self.step_button.pack(side = LEFT)
         
-        self.quit_button = Button(self.container, command = self.QuitCode, background = "red")   
+        self.quit_button = Button(self.container, command = self.quit_code, background = "red")   
         self.quit_button.configure(text = "Quit", background = "red")
         self.quit_button.pack(side = LEFT)
 
-    def RunCode(self):
-        print "Engage the Machine."
-    def StepCode(self):
-        print "Let the Machine take one step."
-    def QuitCode(self):
-        print "Shutting down the Machine."
-        # root.destroy()
+    def run_code(self):
+        if hasattr(app, 'machine'):
+            while True:
+                self.step_code()
+                root.update()
+                time.sleep(.1)
+                if app.machine.state == "HALT":
+                    break
+
+                
+    def step_code(self):
+        if hasattr(app, 'machine'):
+            if app.machine.state != "HALT":
+                app.machine.step()
+                app.update_display()
+                
+    def quit_code(self):
+        root.destroy()
 
 
 
 root = Tk()
+root.title("Turing Machine Simulator")
 app = TuringGUI(root)
-# root.iconbitmap('alan_turing.ico')
+root.iconbitmap('uparrow.ico')
 root.mainloop()
