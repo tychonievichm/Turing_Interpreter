@@ -11,12 +11,19 @@
 
 
 def read_Ugarte(file_name):
-    """Convert a text file into a dictionary of CodeLines."""
+    """Convert a code file in Ugarte's format.
+
+    This takes a code file in Ugarte's format and changes it to the
+    format used by the turing module.  Comments, special states, and
+    instructions are all rewritten in the appropriate way, and the name
+    specified by name: is used as the file name of the resulting .tur
+    file.
+    """
     f = open(file_name, "r")
     Ugarte_code = f.read()
     f.close()
     Ugarte_code = Ugarte_code.split("\n")
-    turing_code = list()
+    turing_code = ["# -*- coding: utf-8 -*-"]
     for s in Ugarte_code:
         init_check = (s.split(":")[0]).lower()
         if init_check == "name":
@@ -51,8 +58,8 @@ def read_Ugarte(file_name):
         else:
             print "bad Ugarte code line found"
             print s
-    new_file_name = filter(str.isalnum, new_file_name) + ".txt"
-    f = open(new_file_name, 'w+')
+    new_file_name = filter(str.isalnum, new_file_name) + ".tur"
+    f = open("codes/" + new_file_name, 'w+')
     for s in turing_code:
         f.write(s + "\n")
     f.close()
@@ -64,6 +71,7 @@ def _convert_code(old_code_line, old_START, old_HALT_list):
     state_out = old_code_line[2]
     tape_write = old_code_line[3]
     direction = old_code_line[4]
+    
     def state_fix(state):
         if state == old_START:
             return "START"
@@ -80,6 +88,3 @@ def _convert_code(old_code_line, old_START, old_HALT_list):
     else:
         direction = "N"
     return " ".join([tape_read, state_in, tape_write, direction, state_out])
-
-
-
