@@ -49,7 +49,7 @@ def _read_code_to_dict(file_name):
                  for s in turing_code if s[0] != '#'}
     return code_dict
 
-# I should switch the order of the first two arguments in CodeLine objects.
+
 class _CodeLine(object):
     """Defines format for reading code from a file."""
     def __init__(self, s):

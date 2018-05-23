@@ -42,7 +42,7 @@ class StateFrame(object):
     def __init__(self, parent):
         self.container = tk.Frame(parent)
         self.container.pack(side=tk.TOP)
-        self.state_display = tk.Label(self.container, text="State.",
+        self.state_display = tk.Label(self.container, text="Please initialize",
                                       font=("Courier", 12))
         self.state_display.pack(side=tk.TOP)
 
@@ -51,7 +51,7 @@ class TapeFrame(object):
     def __init__(self, parent):
         self.container = tk.Frame(parent)
         self.container.pack(side=tk.TOP)
-        self.tape_display = tk.Label(self.container, text="Machine tape.",
+        self.tape_display = tk.Label(self.container, text="the Machine.",
                                      font=("Courier", 12))
         self.tape_display.pack(side=tk.TOP)
 
