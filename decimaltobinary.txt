@@ -1,0 +1,93 @@
+#//////////////////////
+#// turing: dec to bin
+#//////////////////////
+#// Copyright (c) 2013 Max von Buelow
+#// Copyright (c) 2013 kd3x
+#// License: CC BY-NC-SA 3.0
+#// Simulator: turingmachinesimulator.com
+#// Initial state: qinit
+#// Accepting state: qfin
+#// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#// Greetings to the course 'FGdI 1' 
+#// at the TU Darmstadt.
+#// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#name: Decimal to binary
+#init: qinit
+#accept: qfin
+0 START 0 R START
+1 START 1 R START
+2 START 2 R START
+3 START 3 R START
+4 START 4 R START
+5 START 5 R START
+6 START 6 R START
+7 START 7 R START
+8 START 8 R START
+9 START 9 R START
+_ START 0 L halve
+#// Halve and go to addHalf to add the goBack
+0 halve 0 L halve
+1 halve 0 R addHalf
+2 halve 1 L halve
+3 halve 1 R addHalf
+4 halve 2 L halve
+5 halve 2 R addHalf
+6 halve 3 L halve
+7 halve 3 R addHalf
+8 halve 4 L halve
+9 halve 4 R addHalf
+#// Add 0.5 to the right
+0 addHalf 5 L jump
+1 addHalf 6 L jump
+2 addHalf 7 L jump
+3 addHalf 8 L jump
+4 addHalf 9 L jump
+#// Jump back
+0 jump 0 L halve
+1 jump 1 L halve
+2 jump 2 L halve
+3 jump 3 L halve
+4 jump 4 L halve
+#// If we halved successfully, we first remove the zero if there is one and then we go back
+_ halve _ R removezero
+0 removezero _ R removezero
+1 removezero 1 R goBack
+2 removezero 2 R goBack
+3 removezero 3 R goBack
+4 removezero 4 R goBack
+5 removezero 5 R goBack
+6 removezero 6 R goBack
+7 removezero 7 R goBack
+8 removezero 8 R goBack
+9 removezero 9 R goBack
+#// qfinished
+_ removezero _ R HALT
+#// normal goBack
+0 goBack 0 R goBack
+1 goBack 1 R goBack
+2 goBack 2 R goBack
+3 goBack 3 R goBack
+4 goBack 4 R goBack
+5 goBack 5 R goBack
+6 goBack 6 R goBack
+7 goBack 7 R goBack
+8 goBack 8 R goBack
+9 goBack 9 R goBack
+#// rest
+_ goBack _ L rest
+0 rest _ R rest0
+_ rest0 _ R setrest0
+5 rest _ R rest1
+_ rest1 _ R setrest1
+0 setrest0 0 R setrest0
+1 setrest0 1 R setrest0
+0 setrest1 0 R setrest1
+1 setrest1 1 R setrest1
+_ setrest0 0 L continue
+_ setrest1 1 L continue
+#// continue
+0 continue 0 L continue
+1 continue 1 L continue
+_ continue _ L continue2
+#// delimiter
+_ continue2 0 L halve

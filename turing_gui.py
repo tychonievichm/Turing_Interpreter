@@ -1,11 +1,11 @@
 #!/usr/bin/env python.
 # -*- coding: utf-8 -*-
 
-##############################################################################
-#                                                                            #
-#    Interface code for interacting with the Turing Machine simulator.       #
-#                                                                            #
-##############################################################################
+#########################################################################
+#                                                                       #
+#  Interface code for interacting with the Turing Machine simulator.    #
+#                                                                       #
+#########################################################################
 
 import time
 
@@ -108,10 +108,10 @@ class FileFrame(object):
             self.parent = parent
 
             self.input_text = Text(self.container, height = 1, width = 30)
-            self.input_text.insert(END, "test2.txt")
+            self.input_text.insert(END, "____0____1___e")
             self.input_text.pack(side = TOP)
             self.file_text = Text(self.container, height = 1, width = 30)   
-            self.file_text.insert(END, "____0____1___e")
+            self.file_text.insert(END, "test2.txt")
             self.file_text.pack(side = TOP)
         
     class ButtonFrame(object):
@@ -125,9 +125,9 @@ class FileFrame(object):
             
         def load_code(self):
             file_name = (app.interface_frame.file_frame.textbox_frame
-                         .input_text.get("1.0",'end-1c'))
+                         .file_text.get("1.0",'end-1c'))
             input_string = (app.interface_frame.file_frame.textbox_frame
-                            .file_text.get("1.0",'end-1c'))
+                            .input_text.get("1.0",'end-1c'))
             app.machine = turing.new_machine(file_name, input_string)
 
 class ControlFrame(object):
@@ -172,5 +172,5 @@ class ControlFrame(object):
 root = Tk()
 root.title("Turing Machine Simulator")
 app = TuringGUI(root)
-root.iconbitmap('uparrow.ico')
+# root.iconbitmap('uparrow.ico')
 root.mainloop()

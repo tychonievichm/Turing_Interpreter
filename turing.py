@@ -44,11 +44,12 @@ def _read_code_to_dict(file_name):
     turing_code = f.read()
     f.close()
     turing_code = turing_code.split("\n")
+    turing_code = {s for s in turing_code if s.strip() != ""}
     code_dict = {_CodeLine(s).key: _CodeLine(s)
                  for s in turing_code if s[0] != '#'}
     return code_dict
 
-
+# I should switch the order of the first two arguments in CodeLine objects.
 class _CodeLine(object):
     """Defines format for reading code from a file."""
     def __init__(self, s):
@@ -81,6 +82,8 @@ class Machine(object):
             self.position += 1
         elif direction == 'L':
             self.position += -1
+        elif direction == 'N':
+            pass
         else:
             raise DirectionError(direction)
 
@@ -115,7 +118,7 @@ class Machine(object):
             self.tape = ['_']*100 + self.tape
             self.position = self.position + 100
 
-
+# These exceptions do not work correctly.
 class CodeError(Exception):
     """Raised when no code exists for a given state"""
     def __init__(self, symbol, state):
