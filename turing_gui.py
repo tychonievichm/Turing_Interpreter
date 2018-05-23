@@ -14,6 +14,8 @@ import turing
 
 class TuringGUI(object):
     def __init__(self, parent):
+        self.stop = False
+        self.wait_time = 150
         self.container = tk.Frame(parent)
         self.container.pack(side=tk.TOP)
         self.buffer_frame_1 = BufferFrame(self.container, 40, 1, tk.TOP)
@@ -23,7 +25,6 @@ class TuringGUI(object):
         self.buffer_frame_2 = BufferFrame(self.container, 25, 1, tk.TOP)
         self.interface_frame = InterfaceFrame(self.container)
         self.buffer_frame_3 = BufferFrame(self.container, 40, 1, tk.TOP)
-        self.stop = False
 
     def update_display(self):
         pos = self.machine.position
@@ -70,12 +71,14 @@ class InterfaceFrame(object):
         self.container = tk.Frame(parent)
         self.container.pack(side=tk.LEFT)
         self.file_frame = FileFrame(self.container)
-        self.buffer_frame = BufferFrame(self.container, 1, 230, tk.LEFT)
+        self.buffer_frame = BufferFrame(self.container, 1, 50, tk.LEFT)
+        self.slider_frame = SliderFrame(self.container)
+        self.buffer_frame = BufferFrame(self.container, 1, 50, tk.LEFT)
         self.control_frame = ControlFrame(self.container)
-        
+
 
 class FileFrame(object):
-    def __init__(self, parent): 
+    def __init__(self, parent):
         self.container = tk.Frame(parent)
         self.container.pack(side=tk.LEFT)
         self.label_frame = self.LabelFrame(self.container)
@@ -111,7 +114,7 @@ class FileFrame(object):
                                          command=self.load_code,
                                          background="gray", text="Load")
             self.load_button.pack(side=tk.LEFT)
-            
+
         def load_code(self):
             file_name = (app.interface_frame.file_frame.textbox_frame
                          .file_text.get("1.0", 'end-1c'))
@@ -120,6 +123,22 @@ class FileFrame(object):
             app.machine = turing.new_machine(file_name, input_string)
             app.update_display()
             app.stop = False
+
+
+class SliderFrame(object):
+    def __init__(self, parent):
+        self.container = tk.Frame(parent)
+        self.container.pack(side=tk.LEFT)
+        self.slider = tk.Scale(self.container, from_=0, to=300,
+                               orient=tk.HORIZONTAL,
+                               command=self.update_wait_time,
+                               label="Delay between steps(ms)", resolution = 10,
+                               length=150)
+        self.slider.pack(side=tk.TOP)
+        self.slider.set(150)
+
+    def update_wait_time(self, slider_value):
+        app.wait_time = slider_value
 
 
 class ControlFrame(object):
@@ -143,7 +162,7 @@ class ControlFrame(object):
             if app.machine.state == "HALT":
                 return
             elif app.stop is False:
-                root.after(100, self.run_code)
+                root.after(app.wait_time, self.run_code)
             elif app.stop is True:
                 app.stop = False
 
