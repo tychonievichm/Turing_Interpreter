@@ -10,7 +10,7 @@
 import Tkinter as tk  # or from Tkinter import *
 
 import turing
-
+import ugarte_to_tur as ug
 
 class TuringGUI(object):
     def __init__(self, parent):
@@ -108,18 +108,40 @@ class FileFrame(object):
 
     class ButtonFrame(object):
         def __init__(self, parent):
-            self.container = tk.Frame(parent)
-            self.container.pack(side=tk.LEFT)
-            self.load_button = tk.Button(self.container,
+            self.container1 = tk.Frame(parent)
+            self.container1.pack(side=tk.TOP)
+            self.select_label = tk.Label(self.container1, text="Select format.")
+            self.select_label.pack(side=tk.TOP)
+            self.container2 = tk.Frame(parent)
+            self.container2.pack(side=tk.TOP)
+            self.load_button = tk.Button(self.container2,
                                          command=self.load_code,
-                                         background="gray", text="Load")
+                                         text="Load")
             self.load_button.pack(side=tk.LEFT)
+            self.file_format = tk.IntVar()
+            self.file_format.set(0)
+            self.tur_button = tk.Radiobutton(self.container2,
+                                             text=" .tur ",
+                                             variable=self.file_format,
+                                             value=0,
+                                             indicatoron=0)
+            self.tur_button.pack(side=tk.LEFT)
+            self.Ugarte_button = tk.Radiobutton(self.container2,
+                                                text="Ugarte",
+                                                variable=self.file_format,
+                                                value=1,
+                                                indicatoron=0)
+            self.Ugarte_button.pack(side=tk.LEFT)
 
         def load_code(self):
             file_name = (app.interface_frame.file_frame.textbox_frame
                          .file_text.get("1.0", 'end-1c'))
             input_string = (app.interface_frame.file_frame.textbox_frame
                             .input_text.get("1.0", 'end-1c'))
+            if self.file_format.get() == 1:
+                new_code = ug.UgarteCode(file_name)
+                new_code.make_tur_file()
+                file_name = "codes/" + new_code.name
             app.machine = turing.new_machine(file_name, input_string)
             app.update_display()
             app.stop = False
