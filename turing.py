@@ -19,6 +19,16 @@
 # constructor, the new_machine function, the attributes                 #
 # tape, position, and state, or its read() and step() methods.          #
 #                                                                       #
+# This module also contains a translator UgarteCode.make_tur_file to    # 
+# change code files in the format of Martin Ugarte's                    #
+# turingmachinesimulator.com to the format used by this simulator.      #
+# Check out this site for some extra sample TUring codes!               #
+#                                                                       #
+#########################################################################
+#                                                                       #
+#      Michael Tychonievich, Ph.D.                  May 24, 2018        #
+#      Erdős Institute Cőde Bootcamp at The Ohio State University       #
+#                                                                       #
 #########################################################################
 
 
@@ -44,21 +54,32 @@ def _read_code_to_dict(file_name):
     turing_code = f.read()
     f.close()
     turing_code = turing_code.split("\n")
-    turing_code = {s for s in turing_code if s.strip() != ""}
-    code_dict = {_CodeLine(s).key: _CodeLine(s)
-                 for s in turing_code if s[0] != '#'}
+    turing_code = {s for s in turing_code if s.strip() != "" and s[0] != '#'}
+    # Remove comments and blank lines.
+    code_dict = {_CodeLine(s).key: _CodeLine(s) for s in turing_code}
+    if " " in code_dict.keys():
+        code_dict.pop(" ")
     return code_dict
 
 
 class _CodeLine(object):
     """Defines format for reading code from a file."""
     def __init__(self, s):
-        code_list = s.split(" ")
-        self.key = " ".join(code_list[0:2])
-        self.symbol = code_list[2]
-        self.direction = code_list[3]
-        self.state = code_list[4]
-
+            code_list = s.split(" ")
+            if len(code_list) >= 5:
+                # Check to see if a line has enough information in it.
+                # s.split(" ") usually has an extra empty string at the
+                # end.
+                self.key = " ".join(code_list[0:2])
+                self.symbol = code_list[2]
+                self.direction = code_list[3]
+                self.state = code_list[4]
+            else:
+                self.key = " "
+                self.symbol = " "
+                self.direction = " "
+                self.state = " "
+            
 
 class Machine(object):
     """Methods and properties for a simulated Turing Machine."""
@@ -67,6 +88,7 @@ class Machine(object):
         self.tape = tape
         self.position = head_position
         self.state = machine_state
+        self.error = False
 
     def read(self):
         """Returns the symbol currently seen by the head."""
@@ -85,7 +107,11 @@ class Machine(object):
         elif direction == 'N':
             pass
         else:
-            raise DirectionError(direction)
+            self.error = True
+            raise DirectionError(("{0} is not a valid direction code. "
+                                  "Please make sure that all direction "
+                                  "codes are either R or L.").format(
+                                 unicode(self.direction, "utf-8")))
 
     def _change_state(self, new_state):
         """Causes the state of the Machine to change to new_state."""
@@ -105,40 +131,135 @@ class Machine(object):
         sure that the end of the tape is never visible.
         """
         code_key = self._make_code_key()
-        if code_key in self._code:
+        try:
             action = self._code[code_key]
             self._write(action.symbol)
             self._move(action.direction)
             self._change_state(action.state)
-        else:
-            raise CodeError(self.read(), self.state)
+        except KeyError:
+            self.error = True
         if len(self.tape) < self.position + 50:
             self.tape = self.tape + ['_']*100
         if self.position < 50:
             self.tape = ['_']*100 + self.tape
             self.position = self.position + 100
 
-# These exceptions do not work correctly.
-class CodeError(Exception):
-    """Raised when no code exists for a given state"""
-    def __init__(self, symbol, state):
-        print {"No instruction for tape symbol {0} in state {1} found."
-               .format(unicode(self.symbol, "utf-8"),
-                       unicode(self.state, "utf-8"))
-               }
 
+class UgarteCode(object):
+    """Object that gathers and holds all of the code information
+    from a text file holding Turing machine code in the Ugarte format.
+    The method make_tur_file() writes this code in the appropriate
+    format for the turing module.
+    """
+    def __init__(self, file_name):
+        f = open(file_name, "r")
+        self.raw_lines = (f.read()).split("\n")
+        f.close()
+        self.get_metadata()
+        self.translate_lines()
+
+    def get_metadata(self):
+        """Pull the metadata out of the file.  This determines
+        the file name used by make_tur_file() as well as what
+        states should be considered equivalent to START or HALT.
+        """
+        for s in self.raw_lines:
+            init_check = (s.split(":")[0]).lower()
+            if init_check == "name":
+                self.name = "".join(s.split(":")[1:]).lower()
+                self.name = filter(str.isalnum, self.name) + "_U.tur"
+                # Formatting the given name so that it can be a file name.
+            elif init_check == "init":
+                self.init = (s.split(":")[1]).strip()
+            elif init_check == "accept":
+                # accepting states are given as a comma-delimited list,
+                # so it gets pulled apart here
+                seps = [",", ":"]
+                self.accept = s
+                for t in seps:
+                    self.accept.replace(t, " ")
+                self.accept = self.accept.split(" ")
+                self.accept = [t.strip() for t in self.accept]
+                self.accept.pop(0)
+
+    def translate_lines(self):
+        """Takes the list of lines in the input file and
+        classifies each line as either a comment line or a code
+        line.  Comment lines have '#' appended, while code
+        lines are reformatted.
+        """
+        self.turing_code = ["# -*- coding: utf-8 -*-"]
+        self.turing_code.append("")
+        for s in self.raw_lines:
+            if s.strip() == "":
+                self.turing_code.append(s)
+            elif s[0] == "/":
+                self.turing_code.append("# " + s)
+                # Comment out comments.
+            elif s.split(":")[0] in ["name", "init", "accept"]:
+                self.turing_code.append("# " + s)
+                # Comment out metadata.
+            elif len(s.split(",")) == 3:
+                pass
+                # Skip a line if it looks like the second line of
+                # an instruction.
+            elif len(s.split(",")) == 2:
+                code_line_1 = s.split(",")
+                code_line_2 = self.raw_lines[self.raw_lines.index(s)
+                                             + 1].split(",")
+                self.turing_code.append(self._convert_code(code_line_1
+                                                           + code_line_2))
+                # Include reformatted code line as code.
+            else:
+                self.turing_code.append("# BAD LINE " + s)
+                # Comment out anything else.
+
+    def _convert_code(self, code_line):
+        """Reformat a recognized instruction."""
+        state_in = code_line[0].strip()
+        tape_read = code_line[1].strip()
+        state_out = code_line[2].strip()
+        tape_write = code_line[3].strip()
+        direction = code_line[4].strip()
+        try:
+            state_in = self._state_fix(state_in)
+            state_out = self._state_fix(state_out)
+            direction = self._direction_fix(direction)
+        except AttributeError:
+            raise MetadataError("Metadata not found.  Please run get_metadata")
+        return " ".join([tape_read, state_in, tape_write,
+                         direction, state_out])
+
+    def _state_fix(self, state):
+        """Change all init and accept states into 'START'
+        and 'HALT' respectively.
+        """
+        if state == self.init:
+            return "START"
+        elif state in self.accept:
+            return "HALT"
+        else:
+            return state
+
+    def _direction_fix(self, direction):
+        """Change direction instructions to the recognized symbols."""
+        if direction == ">":
+            return "R"
+        elif direction == "<":
+            return "L"
+        else:
+            return "N"
+
+    def make_tur_file(self):
+        """Takes the processed code and writes it to a file."""
+        f = open("codes/" + self.name, 'w+')
+        for s in self.turing_code:
+            f.write(s + "\n")
+        f.close()
 
 class DirectionError(Exception):
-    """Raised when an invalid direction instruction is given."""
-    def __init__(self, bad_direction):
-        print {("{0} is not a valid direction code.  Please make sure "
-                "that all direction codes are either R or L.")
-               .format(unicode(self.symbol, "utf-8"))
-               }
+    """Raised when an invalid direction instruction is given.  Untested."""
+    pass
 
-
-
-
-
-
-
+class MetadataError(Exception):
+    pass
