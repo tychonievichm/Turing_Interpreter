@@ -19,7 +19,7 @@
 # constructor, the new_machine function, the attributes                 #
 # tape, position, and state, or its read() and step() methods.          #
 #                                                                       #
-# This module also contains a translator UgarteCode.make_tur_file to    # 
+# This module also contains a translator UgarteCode.make_tur_file to    #
 # change code files in the format of Martin Ugarte's                    #
 # turingmachinesimulator.com to the format used by this simulator.      #
 # Check out this site for some extra sample TUring codes!               #
@@ -52,6 +52,7 @@ def _read_code_to_dict(file_name):
     """Convert a text file into a dictionary of CodeLines."""
     f = open(file_name, "r")
     turing_code = f.read()
+    # If IOError is raised here, the program quits.
     f.close()
     turing_code = turing_code.split("\n")
     turing_code = {s for s in turing_code if s.strip() != "" and s[0] != '#'}
@@ -69,7 +70,7 @@ class _CodeLine(object):
             if len(code_list) >= 5:
                 # Check to see if a line has enough information in it.
                 # s.split(" ") usually has an extra empty string at the
-                # end.
+                # end, and there might be comments that pad the length.
                 self.key = " ".join(code_list[0:2])
                 self.symbol = code_list[2]
                 self.direction = code_list[3]
@@ -79,7 +80,10 @@ class _CodeLine(object):
                 self.symbol = " "
                 self.direction = " "
                 self.state = " "
-            
+                # These are placeholder values that cannot show up
+                # otherwise.  This code line will be deleted before
+                # the code dictionary is made into a Machine.
+
 
 class Machine(object):
     """Methods and properties for a simulated Turing Machine."""
@@ -89,6 +93,11 @@ class Machine(object):
         self.position = head_position
         self.state = machine_state
         self.error = False
+        # self.error is True when an the machine enters a non-halting
+        # state for which there is no instruction.  It does not attempt
+        # to determine whether this is caused by a problem with the code
+        # file or if the machine merely rejected the input since these
+        # are technically the same thing.
 
     def read(self):
         """Returns the symbol currently seen by the head."""
@@ -108,10 +117,10 @@ class Machine(object):
             pass
         else:
             self.error = True
-            raise DirectionError(("{0} is not a valid direction code. "
-                                  "Please make sure that all direction "
-                                  "codes are either R or L.").format(
-                                 unicode(self.direction, "utf-8")))
+            raise DirectionError(direction + " is not a valid direction "
+                                 "instruction.  Please make sure that all "
+                                 "direction instructions are either R, L, "
+                                 "or N.")
 
     def _change_state(self, new_state):
         """Causes the state of the Machine to change to new_state."""
@@ -149,7 +158,7 @@ class UgarteCode(object):
     """Object that gathers and holds all of the code information
     from a text file holding Turing machine code in the Ugarte format.
     The method make_tur_file() writes this code in the appropriate
-    format for the turing module.
+    format for the new_machine() function.
     """
     def __init__(self, file_name):
         f = open(file_name, "r")
@@ -186,7 +195,8 @@ class UgarteCode(object):
         """Takes the list of lines in the input file and
         classifies each line as either a comment line or a code
         line.  Comment lines have '#' appended, while code
-        lines are reformatted.
+        lines are reformatted for use in constructing _CodeLine
+        objects.
         """
         self.turing_code = ["# -*- coding: utf-8 -*-"]
         self.turing_code.append("")
@@ -212,7 +222,10 @@ class UgarteCode(object):
                 # Include reformatted code line as code.
             else:
                 self.turing_code.append("# BAD LINE " + s)
-                # Comment out anything else.
+                # Comment out anything else and leave a warning in
+                # the new file.  Any line marked as bad in the new 
+                # code file should be reviewed if the code does not
+                # behave as expected.
 
     def _convert_code(self, code_line):
         """Reformat a recognized instruction."""
@@ -257,9 +270,12 @@ class UgarteCode(object):
             f.write(s + "\n")
         f.close()
 
+
 class DirectionError(Exception):
     """Raised when an invalid direction instruction is given.  Untested."""
     pass
 
+
 class MetadataError(Exception):
+    """Raised when code metadata is looked for and not found."""
     pass

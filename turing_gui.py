@@ -18,23 +18,24 @@ import Tkinter as tk  # or from Tkinter import *
 
 import turing
 
+
 class TuringGUI(object):
     """The main object for the program.  It must be named app.
-    
+
     self.stop is used to determine if the user has issued an order to
-    stop, which causes the machine to finish the instruction it is on 
+    stop, which causes the machine to finish the instruction it is on
     and not execute the next one.
-    
+
     self.wait_time determines the minimum amount of time between steps.
-    
+
     self.num_steps is the number of (attempted) executions since the
     most recent machine was loaded.
-    
+
     self.machine is a Machine object defined in the turing module.
     This is initialized by the load button on the GUI.
     """
     def __init__(self, parent):
-        self.stop = False
+        self.stop = True
         self.wait_time = 150
         self.name = "Please load a text file containing Turing Machine code."
         self.num_steps = 0
@@ -56,11 +57,12 @@ class TuringGUI(object):
         tape_label_text = " ".join(self.machine.tape[pos-19:pos+20])
         self.tape_display_frame.tape_display.config(text=tape_label_text)
         self.state_display_frame.state_display.config(text=self.machine.state)
-        
+
     def load_name_display(self):
         """Update the display when a new machine is loaded."""
         self.name_display_frame.name_label.config(text="Program " +
                                                   self.name + " loaded.")
+
     def halt_name_display(self):
         """Update the display when a machine halts."""
         output = ("".join(self.machine.tape)).strip("_")
@@ -72,16 +74,16 @@ class TuringGUI(object):
         """Updates the information display."""
         self.name_display_frame.name_label.config(text="Program " +
                                                   self.name + " after "
-                                                  + str(app.num_steps) + 
-                                                  " steps.")
+                                                  + str(app.num_steps)
+                                                  + " steps.")
 
     def display_error(self):
         """If an input is rejected due to a KeyError in the turing module,
         this updates the information display to let the user know.
         """
         reject_text = " Input rejected after "\
-                    + str(app.num_steps) + " steps.  No instruction for "\
-                    + self.machine.read() + " found."
+                      + str(app.num_steps) + " steps.  No instruction for "\
+                      + self.machine.read() + " found."
         self.name_display_frame.name_label.config(text=reject_text)
 
 
@@ -152,6 +154,7 @@ class InterfaceFrame(object):
         self.control_frame = ControlFrame(self.container)
         self.buffer_frame = BufferFrame(self.container, 1, 20, tk.LEFT)
 
+
 class FileFrame(object):
     """Holds textboxes for the user to place file name and input string
     to initialize a machine.  The user must select a format for the file
@@ -170,9 +173,11 @@ class FileFrame(object):
         def __init__(self, parent):
             self.container = tk.Frame(parent)
             self.container.pack(side=tk.LEFT)
-            self.input_label = tk.Label(self.container, text="Input")
+            self.input_label = tk.Label(self.container, text="Input",
+                                        font=("Helvetica", 8))
             self.input_label.pack(side=tk.TOP)
-            self.file_label = tk.Label(self.container, text="File name")
+            self.file_label = tk.Label(self.container, text="File name",
+                                       font=("Helvetica", 8))
             self.file_label.pack(side=tk.TOP)
 
     class TextboxFrame(object):
@@ -191,13 +196,15 @@ class FileFrame(object):
             self.container1 = tk.Frame(parent)
             self.container1.pack(side=tk.TOP)
             self.select_label = tk.Label(self.container1,
-                                         text="Select format, then load.")
+                                         text="Select format, then load.",
+                                         font=("Helvetica", 8))
             self.select_label.pack(side=tk.RIGHT)
             self.container2 = tk.Frame(parent)
             self.container2.pack(side=tk.TOP)
             self.load_button = tk.Button(self.container2,
                                          command=self.load_code,
-                                         text="Load", height=1)
+                                         text="Load", height=1,
+                                         font=("Helvetica", 8))
             self.load_button.pack(side=tk.LEFT)
             self.file_format = tk.IntVar()
             self.file_format.set(0)
@@ -205,13 +212,15 @@ class FileFrame(object):
                                              text=" .tur ",
                                              variable=self.file_format,
                                              value=0, height=1,
-                                             indicatoron=1)
+                                             indicatoron=1,
+                                             font=("Helvetica", 8))
             self.tur_button.pack(side=tk.LEFT)
             self.Ugarte_button = tk.Radiobutton(self.container2,
                                                 text="Ugarte",
                                                 variable=self.file_format,
                                                 value=1, height=1,
-                                                indicatoron=1)
+                                                indicatoron=1,
+                                                font=("Helvetica", 8))
             self.Ugarte_button.pack(side=tk.LEFT)
 
         def load_code(self):
@@ -239,11 +248,12 @@ class SliderFrame(object):
     def __init__(self, parent):
         self.container = tk.Frame(parent)
         self.container.pack(side=tk.LEFT)
-        self.slider = tk.Scale(self.container, from_=0, to=300,
+        self.slider = tk.Scale(self.container, from_=0, to=500,
                                orient=tk.HORIZONTAL,
                                command=self.update_wait_time,
-                               label="Delay between steps(ms)", resolution = 10,
-                               length=150)
+                               label="Delay between steps(ms)",
+                               resolution=10, length=150,
+                               font=("Helvetica", 8))
         self.slider.pack(side=tk.TOP)
         self.slider.set(150)
 
@@ -257,13 +267,16 @@ class ControlFrame(object):
         self.container = tk.Frame(parent)
         self.container.pack(side=tk.LEFT)
         self.execute_button = tk.Button(self.container, command=self.run_code,
-                                        background="green", text="Execute")
+                                        background="green", text="Execute",
+                                        font=("Helvetica", 8))
         self.execute_button.pack(side=tk.LEFT)
         self.step_button = tk.Button(self.container, command=self.step_code,
-                                     background="yellow", text="Step")
+                                     background="yellow", text="Step",
+                                     font=("Helvetica", 8))
         self.step_button.pack(side=tk.LEFT)
         self.stop_button = tk.Button(self.container, command=self.stop_code,
-                                     background="red", text="Stop")
+                                     background="red", text="Stop",
+                                     font=("Helvetica", 8))
         self.stop_button.pack(side=tk.LEFT)
 
     def run_code(self):
@@ -277,8 +290,6 @@ class ControlFrame(object):
                 root.after(app.wait_time, self.run_code)
             elif app.stop is True:
                 app.stop = False
-
-                
 
     def step_code(self):
         if hasattr(app, 'machine'):
@@ -303,5 +314,5 @@ class ControlFrame(object):
 root = tk.Tk()
 root.title("Turing Machine Simulator")
 app = TuringGUI(root)
-# root.iconbitmap('uparrow.ico')
+root.iconbitmap('uparrow.ico')
 root.mainloop()
