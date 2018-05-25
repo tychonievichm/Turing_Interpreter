@@ -1,6 +1,6 @@
 # Turing Machine Interpreter
 
-This is a prototype interpreter for a one-tape Turing machine, written in Python 2.7.  See test1.txt and test2.txt in the codes directory for sample Turing machine code files.  The main program is turing_gui.py.  To convert example code from turingmachinesimulator.com, save it as a text file and use the option in the GUI.  The code will be remade into a .tur file for you view with a text editor if you witness any unexpected behavior.
+This is a prototype interpreter for a one-tape Turing machine, written in Python 2.7.  See test1.txt and test2.txt in the codes directory for sample Turing machine code files.  The main program is turing_gui.py.  To convert example code from [turingmachinesimulator.com](https://turingmachinesimulator.com/), save it as a text file and use the option in the GUI.  The code will be remade into a .tur file for you view with a text editor if you witness any unexpected behavior.
 
 ## What is a Turing Machine?
 
