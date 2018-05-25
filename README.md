@@ -17,6 +17,7 @@ Alan Turing defined an automatic machine in his [1936 paper](https://www.cs.virg
 
 ### What is a program?
 A program for a machine will be a list of instructions, each containing two "chunks" of information.
+
 **Antecedent information:** this information is what the machine looks for when deciding what instruction to next execute.  It consists of a state name and a symbol that might be found on a tape.  Together, these form a key for a sort of code dictionary.  Each key should only show up in a program once, of the machine will not behave well!
 
 **Consequent information:** this information tells the machine what it is to do once it has found the line of code corresponding to the antecedent key.  It consists of three separate pieces of information: a state name, a tape symbol, and a direction.  Upon determining what instruction to execute, the machine takes this information and performs the following actions:
