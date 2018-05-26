@@ -314,5 +314,5 @@ class ControlFrame(object):
 root = tk.Tk()
 root.title("Turing Machine Simulator")
 app = TuringGUI(root)
-root.iconbitmap('uparrow.ico')
+# root.iconbitmap('uparrow.ico')
 root.mainloop()
