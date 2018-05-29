@@ -237,7 +237,7 @@ class FileFrame(object):
             app.name = (file_name.split("/").pop()).split(".").pop(0)
             app.load_name_display()
             app.update_display()
-            app.stop = False
+            app.stop = True
             app.num_steps = 0
 
 
@@ -280,6 +280,16 @@ class ControlFrame(object):
         self.stop_button.pack(side=tk.LEFT)
 
     def run_code(self):
+        """Check to see whether or not the machine is already looping
+        before starting a loop..
+        """
+        if app.stop is True:
+            app.stop = False
+            root.update()
+            root.after(app.wait_time, self.run_code_loop)
+
+    def run_code_loop(self):
+        """Execute one instruction and display the results."""
         if hasattr(app, 'machine'):
             self.step_code()
             root.update()
@@ -287,19 +297,18 @@ class ControlFrame(object):
                 app.halt_name_display()
                 return
             elif app.stop is False:
-                root.after(app.wait_time, self.run_code)
-            elif app.stop is True:
-                app.stop = False
+                root.after(app.wait_time, self.run_code_loop)
 
     def step_code(self):
+        """Execute one instruction and display the results."""
         if hasattr(app, 'machine'):
             if app.machine.error is True:
                 app.stop = True
                 app.display_error()
             elif app.machine.state != "HALT":
                 app.machine.step()
-                app.update_display()
                 app.num_steps += 1
+                app.update_display()
                 app.step_name_display()
         else:
             app.state_display_frame.state_display.config(
